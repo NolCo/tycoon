@@ -1,3 +1,7 @@
+
+# Tycoon
+트렐로 같은 칸반보드 만들어보기
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
