@@ -56,6 +56,7 @@ class Game extends React.Component {
         this.state = {
             history: [{
                 squares: Array(9).fill(null),
+                nowStepNumber: 0,
             }],
             stepNumber: 0,
             xIsNext: true,
@@ -77,7 +78,8 @@ class Game extends React.Component {
         //다음번이 X인지는 현재의 반대로 저장
         this.setState({
           history: history.concat([{
-            squares: squares
+            squares: squares,
+            nowStepNumber: i,
           }]),
           stepNumber: history.length,
           xIsNext: !this.state.xIsNext,
@@ -100,8 +102,9 @@ class Game extends React.Component {
         //history를 map으로 조회하네..
         //hisotry 클릭시 jumpTo이벤트 호출
         const moves = history.map((step, move) => {
+            console.log(step);
             const desc = move ? 
-            'Go to move #' + move :
+            'Go to move #(' + step.nowStepNumber % 3 + ',' + Math.floor((step.nowStepNumber) / 3) + ')' :
             'Go to game start';
 
             return(
