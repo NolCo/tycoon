@@ -102,13 +102,16 @@ class Game extends React.Component {
         //history를 map으로 조회하네..
         //hisotry 클릭시 jumpTo이벤트 호출
         const moves = history.map((step, move) => {
-            console.log(step);
+            console.log(move);
+            console.log(step.nowStepNumber);
             const desc = move ? 
             'Go to move #(' + step.nowStepNumber % 3 + ',' + Math.floor((step.nowStepNumber) / 3) + ')' :
             'Go to game start';
 
+            const selectedChecker = (this.state.stepNumber === move) ?  'selected-history' : '';
+
             return(
-                <li key={move}>
+                <li className={selectedChecker} key={move}>
                     <button onClick={()=>this.jumpTo(move)}>{desc}</button>
                 </li>
             );

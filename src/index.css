@@ -49,3 +49,6 @@ body {
     margin-left: 20px;
   }
   
+  .selected-history {
+    border: 1px solid black;
+  }
