@@ -13,6 +13,7 @@ function Square(props) {
 
 //Board를 그린다
 class Board extends React.Component {
+
     renderSquare(i) {
         return (<Square 
                     value={this.props.squares[i]} 
@@ -22,23 +23,25 @@ class Board extends React.Component {
     }
 
     render() {
+        const BOARD_SIZE = 3;
+        const board_row = [];
+
+        for(let i = 0; i < BOARD_SIZE; i++) {
+            const square_list = [];
+            for(let j = 0; j < BOARD_SIZE; j++) {
+                square_list.push(
+                    this.renderSquare((BOARD_SIZE * i) + j)
+                )
+            }
+            board_row.push(
+                <div className="board-row">
+                    {square_list}
+                </div>
+            )
+        }
         return (
             <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {board_row}
             </div>
         );
     }
@@ -56,10 +59,11 @@ class Game extends React.Component {
         this.state = {
             history: [{
                 squares: Array(9).fill(null),
-                nowStepNumber: 0,
+                nowStepNumber: -1,
             }],
             stepNumber: 0,
             xIsNext: true,
+            sorted: null,
         }
     }
 
@@ -86,6 +90,34 @@ class Game extends React.Component {
         });
     }
 
+    handleButtonClick(nowStatus) {
+        let newStatus;
+        if(nowStatus === 'desc') {
+            newStatus = 'asc';
+        } else if(nowStatus === 'asc') {
+            newStatus = null;
+        } else {
+            newStatus = 'desc';
+        } 
+
+        this.setState({
+            history : this.state.history.sort(function(a, b) {
+                //console.log(a);
+                 if(a.nowStepNumber === -1 || b.nowStepNumber === -1){
+                     return 1;
+                 }
+     
+                 if(newStatus === 'asc') {
+                     return a.nowStepNumber - b.nowStepNumber;
+                 } else if(newStatus === 'desc') {
+                     return b.nowStepNumber - a.nowStepNumber;
+                 }
+                 return 1;
+             }),
+            sorted: newStatus
+        });
+    }
+
     jumpTo(step) {
         this.setState({
           stepNumber: step,
@@ -102,10 +134,8 @@ class Game extends React.Component {
         //history를 map으로 조회하네..
         //hisotry 클릭시 jumpTo이벤트 호출
         const moves = history.map((step, move) => {
-            console.log(move);
-            console.log(step.nowStepNumber);
             const desc = move ? 
-            'Go to move #(' + step.nowStepNumber % 3 + ',' + Math.floor((step.nowStepNumber) / 3) + ')' :
+            'Go to move #(' + step.nowStepNumber % 3 + ',' + Math.floor((step.nowStepNumber) / 3) + ')' + step.nowStepNumber :
             'Go to game start';
 
             const selectedChecker = (this.state.stepNumber === move) ?  'selected-history' : '';
@@ -124,6 +154,15 @@ class Game extends React.Component {
           status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
 
+        let statusName;
+        if(this.state.sorted === 'desc') {
+            statusName = '내림정렬';
+        } else if(this.state.sorted === 'asc') {
+            statusName = '오름정렬';
+        } else {
+            statusName = '정렬';
+        } 
+
         return (
             <div className="game">
                 <div className="game-board">
@@ -131,6 +170,9 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
+                    <button onClick={() => this.handleButtonClick(this.state.sorted)}>
+                        {statusName}
+                    </button>
                     <ol>{moves}</ol>
                 </div>
             </div>
