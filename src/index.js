@@ -5,7 +5,7 @@ import './index.css';
 //Square 를 그린다
 function Square(props) {    
     return (
-        <button className="square" onClick={props.onClick}>
+        <button className={"square " + props.winnerClass} onClick={props.onClick}>
             {props.value}
         </button>
     );
@@ -14,9 +14,10 @@ function Square(props) {
 //Board를 그린다
 class Board extends React.Component {
 
-    renderSquare(i) {
+    renderSquare(i, winnerClass) {
         return (<Square 
                     value={this.props.squares[i]} 
+                    winner= {this.props.winnerClass? 'squre-winner' : ''}
                     onClick={() => this.props.onClick(i) } 
                 />
         );
@@ -29,8 +30,10 @@ class Board extends React.Component {
         for(let i = 0; i < BOARD_SIZE; i++) {
             const square_list = [];
             for(let j = 0; j < BOARD_SIZE; j++) {
+                const number = (BOARD_SIZE * i) + j;
+                const winnerLine[BOARD_SIZE] = this.props.winner.winnerLine;
                 square_list.push(
-                    this.renderSquare((BOARD_SIZE * i) + j)
+                    this.renderSquare(number)
                 )
             }
             board_row.push(
@@ -64,6 +67,7 @@ class Game extends React.Component {
             stepNumber: 0,
             xIsNext: true,
             sorted: null,
+            winnerLine: null,
         }
     }
 
@@ -72,7 +76,7 @@ class Game extends React.Component {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
+        if (this.calculateWinner(squares).winner || squares[i]) {
           return;
         }
         squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -124,12 +128,35 @@ class Game extends React.Component {
           xIsNext: (step % 2) === 0,
         });
     }
+    
+    calculateWinner(squares){
+        const lines = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+        for (let i = 0; i < lines.length; i++){
+            const [a, b, c] = lines[i];
+            if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                return {
+                    winnerLine: [a,b,c],
+                    winner:squares[a],
+                };
+            }
+        }
+        return null;
+    }
 
     render() {
         //현재 히스토리, 현재 판 정보, 승자 정보 가져옴
         const history = this.state.history;
         const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
+        const winner = this.calculateWinner(current.squares);
     
         //history를 map으로 조회하네..
         //hisotry 클릭시 jumpTo이벤트 호출
@@ -149,7 +176,7 @@ class Game extends React.Component {
 
         let status;
         if (winner) {
-          status = 'Winner: ' + winner;
+          status = 'Winner: ' + winner.winner;
         } else {
           status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
@@ -166,7 +193,7 @@ class Game extends React.Component {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board squares={current.squares} onClick={(i) => this.handleClick(i)}/>
+                    <Board squares={current.squares} winner={winner} onClick={(i) => this.handleClick(i)}/>
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
@@ -188,22 +215,3 @@ ReactDOM.render(
 );
 
 
-function calculateWinner(squares){
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++){
-        const [a, b, c] = lines[i];
-        if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
-    return null;
-}
