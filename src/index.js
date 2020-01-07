@@ -5,7 +5,7 @@ import './index.css';
 //Square 를 그린다
 function Square(props) {    
     return (
-        <button className={"square " + props.winnerClass} onClick={props.onClick}>
+        <button className={"square " + props.winner} onClick={props.onClick}>
             {props.value}
         </button>
     );
@@ -15,9 +15,10 @@ function Square(props) {
 class Board extends React.Component {
 
     renderSquare(i, winnerClass) {
+
         return (<Square 
                     value={this.props.squares[i]} 
-                    winner= {this.props.winnerClass? 'squre-winner' : ''}
+                    winner= {winnerClass? 'squre-winner' : ''}
                     onClick={() => this.props.onClick(i) } 
                 />
         );
@@ -31,9 +32,19 @@ class Board extends React.Component {
             const square_list = [];
             for(let j = 0; j < BOARD_SIZE; j++) {
                 const number = (BOARD_SIZE * i) + j;
-                const winnerLine[BOARD_SIZE] = this.props.winner.winnerLine;
+                let winnerLine = [];
+                if(this.props.winner != null) {
+                    winnerLine = this.props.winner.winnerLine;
+                }
+                let winner = false;
+                for(let k = 0; k < BOARD_SIZE; k++) {
+                    if(winnerLine[k] === number){
+                        winner = true;
+                    }
+                }
+                console.log(winnerLine)
                 square_list.push(
-                    this.renderSquare(number)
+                    this.renderSquare(number, winner)
                 )
             }
             board_row.push(
@@ -76,7 +87,7 @@ class Game extends React.Component {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        if (this.calculateWinner(squares).winner || squares[i]) {
+        if (this.calculateWinner(squares) || squares[i]) {
           return;
         }
         squares[i] = this.state.xIsNext ? 'X' : 'O';
