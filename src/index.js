@@ -33,7 +33,7 @@ class Board extends React.Component {
             for(let j = 0; j < BOARD_SIZE; j++) {
                 const number = (BOARD_SIZE * i) + j;
                 let winnerLine = [];
-                if(this.props.winner != null) {
+                if(this.props.winner !== null && this.props.winner.isDraw === false) {
                     winnerLine = this.props.winner.winnerLine;
                 }
                 let winner = false;
@@ -151,16 +151,34 @@ class Game extends React.Component {
             [0, 4, 8],
             [2, 4, 6],
         ];
+        let result = null;
+        
         for (let i = 0; i < lines.length; i++){
             const [a, b, c] = lines[i];
             if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-                return {
+                result = {
                     winnerLine: [a,b,c],
                     winner:squares[a],
+                    isDraw:false
                 };
             }
         }
-        return null;
+
+        let isEmpty = false;
+        for(let i = 0; i < squares.length; i++){
+            if(squares[i] == null) {
+                isEmpty = true;
+            }
+        }
+
+        //squares가 끝났는데 승패가 안갈렸으면 
+        if(isEmpty === false && result === null){
+            result = {
+                isDraw: true
+            }            
+        }
+
+        return result;
     }
 
     render() {
@@ -187,7 +205,11 @@ class Game extends React.Component {
 
         let status;
         if (winner) {
-          status = 'Winner: ' + winner.winner;
+            if(winner.isDraw){
+                status = 'This game is draw!!'
+            } else {
+                status = 'Winner: ' + winner.winner;
+            }
         } else {
           status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
