@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Game from './oGame'; 
 import './index.css';
+import BoardMaker from './BoardMaker'; 
 
 ReactDOM.render(
-    <Game />,
+    <BoardMaker />,
     document.getElementById('root')
 );
