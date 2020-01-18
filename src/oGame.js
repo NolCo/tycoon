@@ -3,6 +3,7 @@ import Board from './oBoard';
 import './index.css';
 
 
+
 class Game extends React.Component {
 
     constructor(props) {
@@ -11,15 +12,37 @@ class Game extends React.Component {
         //history는 Sqaure배열로 만든다.
         //stepNumber 몇 번째 순번인지
         //xIsNext는 다음번이 X인지 아닌지 판단
+        const BOARD_SIZE = 19
+        this.BOARD_SIZE = BOARD_SIZE;
         this.state = {
             history: [{
-                squares: Array(9).fill(null),
+                squares: Array(BOARD_SIZE).fill(null),
                 nowStepNumber: -1,
             }],
             stepNumber: 0,
             xIsNext: true,
             sorted: null,
             winnerLine: null,
+        }
+       
+        this.winningLines = [
+        ];
+        for(let j = 0; j < BOARD_SIZE; j++){     // y 축
+            for(let i = 0; i < BOARD_SIZE; i++){ // X 축
+                const onePoint = j * BOARD_SIZE + i;
+                if(i < BOARD_SIZE - 4) {
+                    this.winningLines.push([onePoint, onePoint + 1, onePoint + 2, onePoint + 3, onePoint + 4]);
+                }
+                if(j < this.BOARD_SIZE - 4) {
+                    this.winningLines.push([onePoint, onePoint + 1 * BOARD_SIZE, onePoint + 2 * BOARD_SIZE, onePoint + 3 * BOARD_SIZE, onePoint + 4 * BOARD_SIZE]);
+                }
+                if(i < this.BOARD_SIZE - 4 && j < this.BOARD_SIZE - 4) {
+                    this.winningLines.push([onePoint, onePoint + 1 * BOARD_SIZE + 1, onePoint + 2 * BOARD_SIZE + 2, onePoint + 3 * BOARD_SIZE + 3, onePoint + 4 * BOARD_SIZE + 4]);
+                }
+                if(3 < i && j < this.BOARD_SIZE - 4) {
+                    this.winningLines.push([onePoint, onePoint + (1 * BOARD_SIZE - 1), onePoint + (2 * BOARD_SIZE - 2), onePoint + (3 * BOARD_SIZE - 3), onePoint + (4 * BOARD_SIZE - 4)]);
+                }
+            }
         }
     }
 
@@ -82,18 +105,18 @@ class Game extends React.Component {
     }
     
     calculateWinner(squares){
-        const lines = [
-        ];
+        const lines = this.winningLines;
         let result = null;
         
         for (let i = 0; i < lines.length; i++){
-            const [a, b, c] = lines[i];
-            if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+            const [a, b, c, d, e] = lines[i];
+            if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c] && squares[a] === squares[d] && squares[a] === squares[e]) {
                 result = {
-                    winnerLine: [a,b,c],
+                    winnerLine: [a,b,c,d,e],
                     winner:squares[a],
                     isDraw:false
                 };
+                break;
             }
         }
 
@@ -123,8 +146,9 @@ class Game extends React.Component {
         //history를 map으로 조회하네..
         //hisotry 클릭시 jumpTo이벤트 호출
         const moves = history.map((step, move) => {
+            const BOARD_SIZE = this.BOARD_SIZE;
             const desc = move ? 
-            'Go to move #(' + step.nowStepNumber % 3 + ',' + Math.floor((step.nowStepNumber) / 3) + ')' + step.nowStepNumber :
+            'Go to move #(' + step.nowStepNumber % BOARD_SIZE + ',' + Math.floor((step.nowStepNumber) / BOARD_SIZE) + ')' + step.nowStepNumber :
             'Go to game start';
 
             const selectedChecker = (this.state.stepNumber === move) ?  'selected-history' : '';
@@ -159,7 +183,7 @@ class Game extends React.Component {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board squares={current.squares} winner={winner} onClick={(i) => this.handleClick(i)}/>
+                    <Board squares={current.squares} winner={winner} BOARD_SIZE={this.BOARD_SIZE} onClick={(i) => this.handleClick(i)}/>
                 </div>
                 <div className="game-info">
                     <div>{status}</div>

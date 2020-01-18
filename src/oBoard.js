@@ -23,7 +23,7 @@ class Board extends React.Component {
     }
 
     render() {
-        const BOARD_SIZE = 19;
+        const BOARD_SIZE = this.props.BOARD_SIZE
         const board_row = [];
 
         for(let i = 0; i < BOARD_SIZE; i++) {
